@@ -1,0 +1,12 @@
+---
+title: Assignment 1
+author: Jozef Rivest
+date: 06/20/2026
+date-format: long
+
+format:
+  pdf:
+    documentclass: article
+    geometry:
+      - margin=1in
+---
