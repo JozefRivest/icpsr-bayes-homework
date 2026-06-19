@@ -7,6 +7,102 @@ date-format: long
 format:
   pdf:
     documentclass: article
+    fontsize: 12pt
     geometry:
       - margin=1in
 ---
+
+# Problem 1
+
+First let's define the two random variables, and their respective 
+probability distribution. For the random variable $U$, the number
+of tries before the first success can be expressed from a geometric
+distribution which takes two parameters: $k$ the number of trials,
+and $p$ the probability of success. Thus, 
+
+```{=tex}
+\begin{equation}
+  U \sim \text{Geometric}(k, p)
+\end{equation}
+```
+
+For the random variable $V$, the number of trials needed to get 2 heads
+can be expressed as a negative binomial distribution which takes three
+parameters: $r$ the number of success, $x$ the number of failure, and $p$
+the probability of success per trial. Thus
+
+```{=tex}
+\begin{equation}
+  V \sim \text{NBinom}(r, x, p)
+\end{equation}
+```
+
+From the definition of the problem, we know that $S = \{\text{head}, 
+\text{tail}\}$, and 
+
+```{=tex}
+\begin{equation}
+  P(\omega) = 
+  \begin{cases}
+    \frac12 & \text{if } \omega = \text{head} \\
+    \frac12 & \text{if } \omega = \text{tail}
+  \end{cases}
+\end{equation}
+```
+
+where $p$ is the probability of obtaining head. 
+
+```{r}
+#| freeze: true
+#| fig-cap: "Joint distribution of the random variables U and V"
+#| label: fig-joint-uv
+#| fig-width: 5
+#| fig-height: 5
+
+# Set the seed
+set.seed(48109)
+# Number of simulations
+sims <- 1000
+# Number of trials
+trials <- 100
+# Probability of success
+p <- 0.5
+# Define empty vector for U
+u <- c()
+# Define empty vector for V
+v <- c()
+
+# Initiate the loop
+for (i in 1:sims) {
+  heads <- 0
+  trials <- 0
+  first_head <- NA
+
+  while (heads < 2) {
+    trials <- trials + 1
+    flip <- rbinom(1, 1, p)
+    if (flip == 1) {
+      heads <- heads + 1
+      if (heads == 1) first_head <- trials
+    }
+  }
+  u[i] <- first_head
+  v[i] <- trials
+}
+
+# Plotting the output
+plot(
+  jitter(u) ~ jitter(v),
+  xlab = "Number of trials to get 2 heads",
+  ylab = "Number of trials before 1st head"
+)
+abline(lm(u ~ v), col = "red")
+
+# Testing the correlation
+cor(u, v, method = "spearman")
+```
+
+From @fig-joint-uv, we can see that the two random variables 
+are positively correlated. The Spearman correlation also confirm
+this intuition as the correlation is 0.71.
+
