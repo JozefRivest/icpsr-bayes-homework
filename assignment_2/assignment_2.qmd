@@ -1,0 +1,110 @@
+---
+title: Assignment 2
+author: Jozef Rivest
+date: 06/20/2026
+date-format: long
+number-sections: true
+
+format:
+  pdf:
+    documentclass: article
+    fontsize: 12pt
+    geometry:
+      - margin=1in
+
+execute:
+  message: false
+  error: false
+  warning: false
+---
+
+# Problem 1
+
+First, we defined the following `STAN` model
+
+```stan
+data {
+  int<lower=0> N;
+  array[N] int<lower=0, upper=1> birth_1;
+  array[N] int<lower=0, upper=1> birth_2;
+}
+parameters {
+  real<lower=0, upper=1> p;
+}
+model {
+  p ~ beta(1,1);
+  birth_1 ~ bernoulli(p);
+  birth_2 ~ bernoulli(p)
+}
+```
+
+both `birth_1` and `birth_2` are arrays that contain probabilities for each 
+family of having a male for each birth. Here, we assume that each birth is 
+independent, and especially that the second one is independent of the first 
+one. As for the prior, we used the beta distribution with parameter 1 and 1.
+This gives a unfiorm prior bounded between 0 and 1. We could also have specified
+a prior from a uniform distribution with lower bound 0 and upper bound 1, which 
+would have act the same way. However, the beta distribution is the conjugate 
+prior for the bernoulli distribution. This has nice mathematical and statistical 
+properties.
+
+Now we load the data and the relevant libraries
+
+```{r}
+library(rstan)
+library(bayesplot)
+
+load("birthdata.Rda")
+
+dat <- birth.data
+
+model.list <- list(
+  N = nrow(dat),
+  birth_1 = dat$birth1,
+  birth_2 = dat$birth2
+)
+```
+
+To ease the compilation of the document, the following code is simply a 
+placeholder, and the output was manually pasted to avoid to run the stan 
+model everytime we compile this file
+
+```r
+fit <- stan(file = "assignment_2/model.stan", data = model.list)
+
+print(fit)
+```
+```
+Inference for Stan model: anon_model.
+4 chains, each with iter=2000; warmup=1000; thin=1; 
+post-warmup draws per chain=1000, total post-warmup draws=4000.
+
+        mean se_mean   sd    2.5%     25%     50%     75%   97.5% n_eff Rhat
+p       0.56    0.00 0.04    0.49    0.53    0.56    0.58    0.63  1556    1
+lp__ -139.34    0.02 0.75 -141.47 -139.51 -139.06 -138.87 -138.82  1865    1
+
+Samples were drawn using NUTS(diag_e) at Tue Jun 23 12:54:04 2026.
+For each parameter, n_eff is a crude measure of effective sample size,
+and Rhat is the potential scale reduction factor on split chains (at 
+convergence, Rhat=1).
+```
+
+The above output shows the information about the posterior distribution of 
+$p$, which is the probability of a birth being a boy. Both the `Rhat` and the 
+`n_eff` infromation are credible, indicating that the sampler worked properly.
+For additional information, we included the trace plot of the four chains in 
+@sec-trace-1 as additional information about the sampler.
+
+{{< pagebreak >}}
+
+# Problem 2
+
+
+
+{{< pagebreak >}}
+
+# Appendix {.appendix #sec-appendix}
+
+## Problem 1: trace plot {#sec-trace-1}
+
+![Trace plot of the four chains](figures/trace_plot_1.png)
