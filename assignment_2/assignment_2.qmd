@@ -172,7 +172,36 @@ information about the sampler.
 
 # Problem 3
 
+To answer the question whether $p_1 < p_2$, we can plot the two posterior
+distribution and look at how much they overlap.
 
+![Posterior distribution of $p_1$ and $p_2$](figures/post_dist.png){#fig-post-2}
+
+The @fig-post-2 plots the posterior distributions for $p_1$ and $p_2$,
+where the vertical lines represent the median of each distribution. The
+figure clearly shows that the inequality is not accurate. On the contrary,
+it suggests $p_2 < p_1$. From this figure, we can clearly see that the
+overlap between the two parameters estimated is quite minimal. The upper
+bound of the 95% credible interval of $p_2$ is 0.55 and the lower bound
+of the 95% credible interval of $p_1$ is 0.66. This implies that, to get
+the same value for both estimated paramter, given the current posterior
+distributions, we have a probability of 0.025. Hence, we can be quite confident
+that $p_2 < p_1$. The code below computes the cumulative probability for each
+posterior distribution to produce overlaping values. This provides further 
+numerical evidence that $p_2 < p_1$.
+
+```r
+sum(dat$p1 < 0.66) / length(dat$p1)
+```
+```
+[1] 0.02875
+```
+```r
+sum(dat$p2 > 0.66) / length(dat$p2)
+```
+```
+[1] 0
+```
 
 {{< pagebreak >}}
 

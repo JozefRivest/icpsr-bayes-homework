@@ -2,6 +2,7 @@ library(rstan)
 library(bayesplot)
 library(broom)
 library(ggplot2)
+library(tidybayes)
 
 load("assignment_2/birthdata.Rda")
 
@@ -58,3 +59,40 @@ ggsave(
 #############
 ## Problem 3
 #############
+
+dat <- as.data.frame(rstan::extract(fit.2))
+names(dat)
+
+print(fit.2)
+
+plot.2 <- ggplot(dat) +
+  geom_density(aes(p1, color = "p1", fill = "p1"), alpha = 0.4) +
+  geom_density(aes(p2, color = "p2", fill = "p2"), alpha = 0.4) +
+  scale_color_manual(name = "Variable", values = c(p1 = "red", p2 = "blue")) +
+  scale_fill_manual(name = "Variable", values = c(p1 = "red", p2 = "blue")) +
+  geom_segment(
+    x = median(dat$p2),
+    xend = median(dat$p2),
+    y = 0,
+    yend = 7,
+    linetype = "dashed",
+  ) +
+  geom_segment(
+    x = median(dat$p1),
+    xend = median(dat$p1),
+    y = 0,
+    yend = 7,
+    linetype = "dashed",
+  ) +
+  labs(y = "Density", x = " ") +
+  theme_bw()
+
+ggsave(
+  "assignment_2/figures/post_dist.png",
+  plot = plot.2,
+  width = 9,
+  height = 4
+)
+
+sum(dat$p1 < 0.66) / sum(dat$p1)
+sum(dat$p2 > 0.66) / sum(dat$p2)
